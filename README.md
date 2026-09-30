@@ -76,7 +76,7 @@ Run:
 sudo ./23_user_management_menu.sh
 ```
 
-The menu contains create, delete, modify, password, lock/unlock, user information, groups, logged-in users, shell/home-directory changes, expiry, account aging, and user removal with home directory.
+The menu contains 17 menu-driven options covering all practical requirements: create user, delete user (with confirmation), modify info, password, lock/unlock, user info, groups, list all users, check existence, logged-in users, shell/home directory change, account expiration, aging info, remove user with home directory, and exit.
 
 ## GitHub upload
 

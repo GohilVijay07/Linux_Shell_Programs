@@ -1,182 +1,235 @@
 #!/bin/bash
 
-# Practical 23: Menu-driven Bash script for common Linux user management.
-# Administrative operations require root/sudo privileges.
+# Practical 23: Menu-driven Bash script for common Linux user management operations.
+# Subject: Linux System Administration (MSC IT Sem-1)
+# College: Department of Computer Science, Faculty of ICT, Gujarat Vidyapith
 
+# Requirement 1: Check root/sudo privileges
 if [ "$EUID" -ne 0 ]; then
-    echo "Please run this script with sudo/root privileges."
+    echo "Please run this script with sudo or as root."
+    echo "Example: sudo ./23_user_management_menu.sh"
     exit 1
 fi
 
+# Function to validate whether a user exists
 user_exists() {
-    id "$1" &>/dev/null
+    id "$1" > /dev/null 2>&1
 }
 
+# Infinite loop to keep showing menu until user chooses Exit (17)
 while true; do
-    echo
-    echo "====== USER MANAGEMENT ======"
-    echo "1.  Create User"
-    echo "2.  Delete User"
-    echo "3.  Modify User Information"
-    echo "4.  Set/Change User Password"
-    echo "5.  Lock User Account"
-    echo "6.  Unlock User Account"
-    echo "7.  Display User Information"
-    echo "8.  Display User Groups"
-    echo "9.  Display All System Users"
-    echo "10. Check Whether User Exists"
-    echo "11. Display Currently Logged-in Users"
-    echo "12. Change User Login Shell"
-    echo "13. Change User Home Directory"
-    echo "14. Set Account Expiration Date"
-    echo "15. Display Account Aging Information"
-    echo "16. Remove User + Home Directory"
+    echo "=========================================="
+    echo "        LINUX USER MANAGEMENT MENU        "
+    echo "=========================================="
+    echo "1.  Create a new user"
+    echo "2.  Delete an existing user"
+    echo "3.  Modify user information"
+    echo "4.  Set or change user password"
+    echo "5.  Lock a user account"
+    echo "6.  Unlock a user account"
+    echo "7.  Display user information"
+    echo "8.  Display the groups to which a user belongs"
+    echo "9.  Display all system users"
+    echo "10. Check whether a user exists"
+    echo "11. Display currently logged-in users"
+    echo "12. Change a user's login shell"
+    echo "13. Change a user's home directory"
+    echo "14. Set account expiration date"
+    echo "15. Display account aging information"
+    echo "16. Remove a user along with their home directory"
     echo "17. Exit"
-    echo "============================="
-
-    read -r -p "Enter your choice: " choice
+    echo "=========================================="
+    read -p "Enter your choice [1-17]: " choice
 
     case "$choice" in
         1)
-            read -r -p "Enter username: " user
+            # Create a new user
+            read -p "Enter username to create: " user
             if user_exists "$user"; then
-                echo "User already exists."
+                echo "User '$user' already exists!"
             else
-                useradd "$user" && echo "User created successfully."
+                useradd "$user"
+                echo "User '$user' created successfully."
             fi
             ;;
+
         2)
-            read -r -p "Enter username: " user
+            # Delete an existing user (with confirmation)
+            read -p "Enter username to delete: " user
             if user_exists "$user"; then
-                read -r -p "Are you sure you want to delete '$user'? (y/n): " ans
-                if [ "$ans" = "y" ]; then
-                    userdel "$user" && echo "User deleted."
+                read -p "Are you sure you want to delete '$user'? (y/n): " confirm
+                if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+                    userdel "$user"
+                    echo "User '$user' deleted successfully."
                 else
-                    echo "Delete cancelled."
+                    echo "Deletion cancelled."
                 fi
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         3)
-            read -r -p "Enter username: " user
+            # Modify user information (Full name / comment)
+            read -p "Enter username: " user
             if user_exists "$user"; then
-                read -r -p "Enter new full name: " name
-                usermod -c "$name" "$user" && echo "User information modified."
+                read -p "Enter new comment/full name: " comment
+                usermod -c "$comment" "$user"
+                echo "User information updated successfully."
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         4)
-            read -r -p "Enter username: " user
+            # Set or change user password
+            read -p "Enter username: " user
             if user_exists "$user"; then
                 passwd "$user"
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         5)
-            read -r -p "Enter username: " user
+            # Lock a user account
+            read -p "Enter username to lock: " user
             if user_exists "$user"; then
-                passwd -l "$user" && echo "User locked."
+                passwd -l "$user"
+                echo "User account '$user' locked successfully."
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         6)
-            read -r -p "Enter username: " user
+            # Unlock a user account
+            read -p "Enter username to unlock: " user
             if user_exists "$user"; then
-                passwd -u "$user" && echo "User unlocked."
+                passwd -u "$user"
+                echo "User account '$user' unlocked successfully."
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         7)
-            read -r -p "Enter username: " user
+            # Display user information (id and getent)
+            read -p "Enter username: " user
             if user_exists "$user"; then
+                echo "--- User and Group IDs ---"
                 id "$user"
+                echo "--- Password Entry (/etc/passwd) ---"
                 getent passwd "$user"
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         8)
-            read -r -p "Enter username: " user
+            # Display groups to which a user belongs
+            read -p "Enter username: " user
             if user_exists "$user"; then
                 groups "$user"
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         9)
-            echo "All system users:"
+            # Display all system users
+            echo "--- List of All System Users ---"
             cut -d: -f1 /etc/passwd
             ;;
+
         10)
-            read -r -p "Enter username: " user
+            # Check whether a user exists
+            read -p "Enter username to check: " user
             if user_exists "$user"; then
-                echo "User exists."
+                echo "Yes, user '$user' exists."
             else
-                echo "User does not exist."
+                echo "No, user '$user' does not exist."
             fi
             ;;
+
         11)
+            # Display currently logged-in users
+            echo "--- Currently Logged-in Users ---"
             who
             ;;
+
         12)
-            read -r -p "Enter username: " user
+            # Change a user's login shell
+            read -p "Enter username: " user
             if user_exists "$user"; then
-                read -r -p "Enter new shell (e.g. /bin/bash): " shell
-                usermod -s "$shell" "$user" && echo "Login shell changed."
+                read -p "Enter new shell (e.g., /bin/bash): " shell
+                usermod -s "$shell" "$user"
+                echo "Login shell changed to '$shell'."
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         13)
-            read -r -p "Enter username: " user
+            # Change a user's home directory
+            read -p "Enter username: " user
             if user_exists "$user"; then
-                read -r -p "Enter new home directory: " home
-                usermod -d "$home" -m "$user" && echo "Home directory changed."
+                read -p "Enter new home directory path: " newdir
+                usermod -d "$newdir" -m "$user"
+                echo "Home directory changed to '$newdir'."
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         14)
-            read -r -p "Enter username: " user
+            # Set account expiration date
+            read -p "Enter username: " user
             if user_exists "$user"; then
-                read -r -p "Enter expiry date (YYYY-MM-DD): " date
-                chage -E "$date" "$user" && echo "Expiry date set."
+                read -p "Enter expiration date (YYYY-MM-DD): " expdate
+                chage -E "$expdate" "$user"
+                echo "Account expiration date set to '$expdate'."
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         15)
-            read -r -p "Enter username: " user
+            # Display account aging information
+            read -p "Enter username: " user
             if user_exists "$user"; then
                 chage -l "$user"
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         16)
-            read -r -p "Enter username: " user
+            # Remove a user along with their home directory (with confirmation)
+            read -p "Enter username to remove: " user
             if user_exists "$user"; then
-                read -r -p "Delete '$user' and its home directory? (y/n): " ans
-                if [ "$ans" = "y" ]; then
-                    userdel -r "$user" && echo "User and home directory deleted."
+                read -p "Are you sure you want to remove '$user' AND home directory? (y/n): " confirm
+                if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+                    userdel -r "$user"
+                    echo "User '$user' and home directory removed successfully."
                 else
-                    echo "Delete cancelled."
+                    echo "Removal cancelled."
                 fi
             else
-                echo "User does not exist."
+                echo "User '$user' does not exist."
             fi
             ;;
+
         17)
-            echo "Program ended."
+            # Exit the script
+            echo "Exiting program. Goodbye!"
             exit 0
             ;;
+
         *)
-            echo "Invalid choice. Please enter 1-17."
+            # Handle invalid choice
+            echo "Invalid choice! Please enter a number between 1 and 17."
             ;;
     esac
+    echo
 done
