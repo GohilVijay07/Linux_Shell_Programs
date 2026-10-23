@@ -1,0 +1,8 @@
+#any user to send birthday messeage 
+
+#Ex 
+
+Linux26:linux26:23-10
+Linux27:Linux27:23-10
+Linux28:linux28:23-10
+Linux29:Linux29:23-10
